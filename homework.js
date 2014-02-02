@@ -3,20 +3,17 @@
  * @param {Event} e событие клика
  * @private
  */
-var elements = document.querySelectorAll('a');
 
-for (var i = 0; i < elements.length; i++) {
-	elements[i].onclick = function(event){
-		event.preventDefault();
-		_onMouseClick(event);
-	}
-};
+document.body.addEventListener('click', _onMouseClick, false);
 
 function _onMouseClick(e) {
 
-	var link = e.target;
-	openPopupFromLink(link);
+	var target = e && e.target || event.srcElement;
 
+	if (target.classList.contains('popup-link')) {
+        event.preventDefault ? event.preventDefault() : (event.returnValue=false);
+        openPopupFromLink(e.target);
+    }
 }
 
 /**
@@ -26,12 +23,21 @@ function _onMouseClick(e) {
  */
 function openPopupFromLink(link) {
 
-	var url = link.getAttribute('href'), 
-		title = link.getAttribute('data-title'),
-		message = link.getAttribute('data-message');
+		var title = link.getAttribute('data-title'),
+			message = link.dataset.message.replace(/%s/, link.getAttribute('href')),
+			href = link.getAttribute('href');
 
-	createPopup(title, message, url);
+		if (!document.getElementsByClassName('popupwrap')[0]) {
+			createPopup(title, message, href);
+		} else {
+			document.getElementsByClassName('popupwrap')[0].style.display = 'block';
+			document.getElementsByTagName('h3')[0].innerText = title;
+			document.getElementsByClassName('message')[0].innerText = message;
+		};
 
+		document.getElementsByClassName('buttonOk')[0].onclick = function(){
+			document.location.href = href;
+		}
 }
 
 /**
@@ -44,42 +50,33 @@ function openPopupFromLink(link) {
 function createPopup(title, message, onOk) {
 
 	var popup = document.createElement('div'),
+		popupwrap = document.createElement('div'),
 		popupTitle = document.createElement('h3'),
 		popupMessage = document.createElement('p'),
 		buttonCancel = document.createElement('button'),
-		buttonOk = document.createElement('button');
-		popupwrap = document.createElement('div');
+		buttonOk = document.createElement('button'),
 		close = document.createElement('i');
 		
-
-	if (message.indexOf('%s') != -1) {
-		message = message.replace('%s', onOk);
-	};
-
 	popupTitle.innerText = title;
-	popupMessage.innerText = message;
+	popupMessage.innerText = message.replace('%s', onOk);
 	buttonOk.innerText = 'Да';
 	buttonCancel.innerText = 'Нет';
-
 
 	popup.classList.add('popup');
 	popupwrap.classList.add('popupwrap');
 	close.classList.add('close');
+	popupMessage.classList.add('message');
+	buttonOk.classList.add('buttonOk');
 
 
 	buttonCancel.onclick = function(event) {
 		event.preventDefault();
-		document.body.removeChild(popupwrap);
-	}
-
-	buttonOk.onclick = function(event) {
-		event.preventDefault();
-		document.location.href = onOk;
+		document.getElementsByClassName('popupwrap')[0].style.display = 'none'
 	}
 
 	close.onclick = function(event) {
 		event.preventDefault();
-		document.body.removeChild(popupwrap);
+		document.getElementsByClassName('popupwrap')[0].style.display = 'none'
 	}
 
 	popupwrap.appendChild(popup);
