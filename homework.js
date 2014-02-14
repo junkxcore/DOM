@@ -8,10 +8,10 @@ document.body.addEventListener('click', _onMouseClick, false);
 
 function _onMouseClick(e) {
 
-	var target = e && e.target || event.srcElement;
+    var target = e && e.target || event.srcElement;
 
-	if (target.classList.contains('popup-link')) {
-        event.preventDefault ? event.preventDefault() : (event.returnValue=false);
+    if (target.classList.contains('popup-link')) {
+        event.preventDefault ? event.preventDefault() : (event.returnValue = false);
         openPopupFromLink(e.target);
     }
 }
@@ -23,21 +23,22 @@ function _onMouseClick(e) {
  */
 function openPopupFromLink(link) {
 
-		var title = link.getAttribute('data-title'),
-			message = link.dataset.message.replace(/%s/, link.getAttribute('href')),
-			href = link.getAttribute('href');
+    var title = link.getAttribute('data-title'),
+        message = link.dataset.message.replace(/%s/, link.getAttribute('href')),
+        href = function() {
+            event.preventDefault();
+            document.location.href = link.getAttribute('href');
+        }
 
-		if (!document.getElementsByClassName('popupwrap')[0]) {
-			createPopup(title, message, href);
-		} else {
-			document.getElementsByClassName('popupwrap')[0].style.display = 'block';
-			document.getElementsByTagName('h3')[0].innerText = title;
-			document.getElementsByClassName('message')[0].innerText = message;
-		};
+    if (!document.getElementsByClassName('popupwrap')[0]) {
+        createPopup(title, message, href);
+    } else {
+        document.getElementsByClassName('popupwrap')[0].style.display = 'block';
+        document.getElementsByTagName('h3')[0].innerText = title;
+        document.getElementsByClassName('message')[0].innerText = message;
+    };
 
-		document.getElementsByClassName('buttonOk')[0].onclick = function(){
-			document.location.href = href;
-		}
+    document.getElementsByClassName('buttonOk')[0].addEventListener('click', href);
 }
 
 /**
@@ -49,42 +50,41 @@ function openPopupFromLink(link) {
  */
 function createPopup(title, message, onOk) {
 
-	var popup = document.createElement('div'),
-		popupwrap = document.createElement('div'),
-		popupTitle = document.createElement('h3'),
-		popupMessage = document.createElement('p'),
-		buttonCancel = document.createElement('button'),
-		buttonOk = document.createElement('button'),
-		close = document.createElement('i');
-		
-	popupTitle.innerText = title;
-	popupMessage.innerText = message.replace('%s', onOk);
-	buttonOk.innerText = 'Да';
-	buttonCancel.innerText = 'Нет';
+    var popup = document.createElement('div'),
+        popupwrap = document.createElement('div'),
+        popupTitle = document.createElement('h3'),
+        popupMessage = document.createElement('p'),
+        buttonCancel = document.createElement('button'),
+        buttonOk = document.createElement('button'),
+        close = document.createElement('i');
 
-	popup.classList.add('popup');
-	popupwrap.classList.add('popupwrap');
-	close.classList.add('close');
-	popupMessage.classList.add('message');
-	buttonOk.classList.add('buttonOk');
+    popupTitle.innerText = title;
+    popupMessage.innerText = message;
+    buttonOk.innerText = 'Да';
+    buttonCancel.innerText = 'Нет';
+
+    popup.classList.add('popup');
+    popupwrap.classList.add('popupwrap');
+    close.classList.add('close');
+    popupMessage.classList.add('message');
+    buttonOk.classList.add('buttonOk');
+
+    function closepopup(event) {
+        event.preventDefault();
+        document.getElementsByClassName('popupwrap')[0].style.display = 'none'
+    }
+
+    buttonCancel.onclick = closepopup;
+    close.onclick = closepopup;
+
+    popupwrap.appendChild(popup);
+    popup.appendChild(close);
+    popup.appendChild(popupTitle);
+    popup.appendChild(popupMessage);
+    popup.appendChild(buttonOk);
+    popup.appendChild(buttonCancel);
+
+    document.body.appendChild(popupwrap);
 
 
-	buttonCancel.onclick = function(event) {
-		event.preventDefault();
-		document.getElementsByClassName('popupwrap')[0].style.display = 'none'
-	}
-
-	close.onclick = function(event) {
-		event.preventDefault();
-		document.getElementsByClassName('popupwrap')[0].style.display = 'none'
-	}
-
-	popupwrap.appendChild(popup);
-	popup.appendChild(close);
-	popup.appendChild(popupTitle);
-	popup.appendChild(popupMessage);
-	popup.appendChild(buttonOk);
-	popup.appendChild(buttonCancel);
-	
-	document.body.appendChild(popupwrap);
 }
