@@ -36,9 +36,8 @@ function openPopupFromLink(link) {
         document.getElementsByClassName('popupwrap')[0].style.display = 'block';
         document.getElementsByTagName('h3')[0].innerText = title;
         document.getElementsByClassName('message')[0].innerText = message;
+        document.getElementsByClassName('buttonOk')[0].addEventListener('click', href, false);
     };
-
-    document.getElementsByClassName('buttonOk')[0].addEventListener('click', href);
 }
 
 /**
@@ -68,14 +67,17 @@ function createPopup(title, message, onOk) {
     close.classList.add('close');
     popupMessage.classList.add('message');
     buttonOk.classList.add('buttonOk');
+    buttonCancel.classList.add('buttonCancel');
 
     function closepopup(event) {
         event.preventDefault();
-        document.getElementsByClassName('popupwrap')[0].style.display = 'none'
+        document.getElementsByClassName('popupwrap')[0].style.display = 'none';
+        document.getElementsByClassName('buttonOk')[0].removeEventListener('click', onOk, false);
     }
 
-    buttonCancel.onclick = closepopup;
-    close.onclick = closepopup;
+    buttonCancel.addEventListener('click', closepopup, false);
+    close.addEventListener('click', closepopup, false);
+    buttonOk.addEventListener('click', onOk, false);
 
     popupwrap.appendChild(popup);
     popup.appendChild(close);
@@ -85,6 +87,4 @@ function createPopup(title, message, onOk) {
     popup.appendChild(buttonCancel);
 
     document.body.appendChild(popupwrap);
-
-
 }
